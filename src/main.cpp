@@ -45,10 +45,15 @@ void setup () {
   Serial.begin(9600);
 
   Wire.begin();
+
   Wire.beginTransmission(MPU_neck_address); // Begins the I2C slave
+  Wire.write(0x6B); // configures the chip in the neck MPU to not to be in sleep mode
+  Wire.write(0x00); // set to zero; wakes up the MPU
+  Wire.endTransmission(true);
+
   Wire.beginTransmission(MPU_spine_address); // Begins the I2C slave
-  Wire.write(0x6B); // configures the chip in both the MPU to not to be in sleep mode
-  Wire.write(0x00); // set to zero; wakes up both the MPU
+  Wire.write(0x6B); // configures the chip in the sping MPU to not to be in sleep mode
+  Wire.write(0x00); // set to zero; wakes up the MPU
   Wire.endTransmission(true);
 }
 
