@@ -1,19 +1,22 @@
 #include <Arduino.h>
 #include "Wire.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 #define WINDOWSIZE 5
+
+// char fileName [100] = "src/profiles/yathien.txt";
 
 // Index 0 is for ROLL
 // Index 1 is for PITCH
 float bad_neck_posture_th [2]; 
-float good_neck_posutre_th [2];
+float good_neck_posture_th [2];
 
 // Index 0 is for ROLL
 // Index 1 is for PITCH
 
 float bad_spine_posture_th [2] = {44.0, 55.0}; 
-float good_spine_posutre_th [2] = {55.0, 30.0};
+float good_spine_posture_th [2] = {55.0, 30.0};
 
 using namespace std;
 
@@ -53,7 +56,7 @@ size_t relay_switch = 7;
 // FUNCTION DECLARATION 
 char * convert_int16_to_str(int16_t i);
 void calculate_MPU_error(const int & mpu_address, const size_t index);
-void read_profile();
+// void read_profile(char * fileName);
 
 
 void setup () {
@@ -173,12 +176,12 @@ void loop () {
     avg_pitch_spine /= WINDOWSIZE;
 
     // Compares the threshold
-    if((avg_pitch_spine >= good_spine_posutre_th[1])) {   // Also include if the neck posture is also in good threshold (AND STATEMENT); for now it's using the pitch
+    if((avg_pitch_spine >= good_spine_posture_th[1])) {   // Also include if the neck posture is also in good threshold (AND STATEMENT); for now it's using the pitch
       Serial.println("GOOD Posture");
       digitalWrite(relay_switch, LOW);
 
     }
-    else if (avg_pitch_spine < good_spine_posutre_th[1] && avg_pitch_spine > bad_neck_posture_th[1]) // Also include if the neck posture is in okay threshold; statement is OR between neck and spine for the yellow light to flash
+    else if (avg_pitch_spine < good_spine_posture_th[1] && avg_pitch_spine > bad_neck_posture_th[1]) // Also include if the neck posture is in okay threshold; statement is OR between neck and spine for the yellow light to flash
     {
       Serial.println("OKAY Posture");
       digitalWrite(relay_switch, LOW);
@@ -235,3 +238,29 @@ void calculate_MPU_error(const int & mpu_address, const size_t index) {
   x_accel_error[index] /= n;
   y_accel_error[index] /= n;
 }
+
+// Honestly ignore this function 
+// void read_profile(char * fileName) {
+//   FILE * file_ptr = fopen(fileName, "r");
+//   if(file_ptr == NULL) {
+//     Serial.println("File not found!");
+//     return;
+//   }
+
+//   char temp [8][5];
+//   size_t i = 0;
+//   while(fgets(temp[i], sizeof(temp[i]), file_ptr)) {
+//     ++i;
+//   }
+
+//   fclose(file_ptr);
+
+//   good_spine_posture_th[0] = float(atoi(temp[0]));
+//   good_spine_posture_th[1] = float(atoi(temp[1]));
+//   bad_spine_posture_th[0] = float(atoi(temp[2]));
+//   bad_spine_posture_th[1] = float(atoi(temp[3]));
+//   good_neck_posture_th[0] = float(atoi(temp[4]));
+//   good_neck_posture_th[1] = float(atoi(temp[5]));
+//   bad_neck_posture_th[0] = float(atoi(temp[6]));
+//   bad_neck_posture_th[1] = float(atoi(temp[7]));
+// }
