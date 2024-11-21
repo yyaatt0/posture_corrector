@@ -3,20 +3,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+
 #define WINDOWSIZE 5
 
 // char fileName [100] = "src/profiles/yathien.txt";
 
 // Index 0 is for ROLL
 // Index 1 is for PITCH
-float bad_neck_posture_th [2]; 
-float good_neck_posture_th [2];
+float bad_neck_posture_th [2] = {0, 55}; 
+float good_neck_posture_th [2] = {0, 70};
 
 // Index 0 is for ROLL
 // Index 1 is for PITCH
 
-float bad_spine_posture_th [2] = {44.0, 55.0}; 
-float good_spine_posture_th [2] = {55.0, 30.0};
+float bad_spine_posture_th [2] = {44.0, 75}; 
+float good_spine_posture_th [2] = {0, 80.0};
 
 using namespace std;
 
@@ -127,10 +129,10 @@ void loop () {
   roll_spine[index] = (atan(y_accel[1] / sqrt(pow(x_accel[1], 2) + pow(z_accel[1], 2))) * 180) / PI; 
   pitch_spine[index] = (atan((-1 * x_accel[1]) / sqrt(pow(y_accel[1], 2) + pow(z_accel[1], 2))) * 180) / PI;
 
-  Serial.print("spineRoll : ");
-  Serial.print(roll_spine[index]);
-  Serial.print(" | spinePitch : ");
-  Serial.print(pitch_spine[index]);
+  // Serial.print("spineRoll : ");
+  // Serial.print(roll_spine[index]);
+  // Serial.print(" | spinePitch : ");
+  // Serial.print(pitch_spine[index]);
 
   // DATA FROM THE NECK MPU
   Wire.beginTransmission(MPU_neck_address);
@@ -154,10 +156,10 @@ void loop () {
   roll_neck[index] = (atan(y_accel[0] / sqrt(pow(x_accel[0], 2) + pow(z_accel[0], 2))) * 180) / PI; 
   pitch_neck[index] = (atan((-1 * x_accel[0]) / sqrt(pow(y_accel[0], 2) + pow(z_accel[0], 2))) * 180) / PI;
   
-  Serial.print("\t\tneckRoll : ");
-  Serial.print(roll_neck[index]);
-  Serial.print(" | neckPitch : ");
-  Serial.print(pitch_neck[index]);
+  // Serial.print("\t\tneckRoll : ");
+  // Serial.print(roll_neck[index]);
+  // Serial.print(" | neckPitch : ");
+  // Serial.print(pitch_neck[index]);
 
   // This checks if the array has been filled up initially, this boolean only matters in like the first WINDOWSIZE iterations of the loop function
   if(pitch_neck[WINDOWSIZE - 1 ] != 17000.00) {
@@ -181,12 +183,12 @@ void loop () {
       digitalWrite(relay_switch, LOW);
 
     }
-    else if (avg_pitch_spine < good_spine_posture_th[1] && avg_pitch_spine > bad_neck_posture_th[1]) // Also include if the neck posture is in okay threshold; statement is OR between neck and spine for the yellow light to flash
+    else if (avg_pitch_spine < good_spine_posture_th[1] && avg_pitch_spine > bad_spine_posture_th[1]) // Also include if the neck posture is in okay threshold; statement is OR between neck and spine for the yellow light to flash
     {
       Serial.println("OKAY Posture");
       digitalWrite(relay_switch, LOW);
     }
-    else if(avg_pitch_spine <= bad_spine_posture_th[1]) { // Also include if the neck posutre is also in bad threshold; statement is OR between neck and spine for the red light to flash
+    else if(avg_pitch_spine <= bad_spine_posture_th[1] || avg_pitch_neck < good_neck_posture_th[1]) { // Also include if the neck posutre is also in bad threshold; statement is OR between neck and spine for the red light to flash
       Serial.println("BAD Posture ");
       
       // Turns on the other circuit that is controlled by the relay switch 
